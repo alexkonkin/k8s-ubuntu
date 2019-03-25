@@ -3,7 +3,9 @@
   become: yes
   connection: local
   roles:
-    - role: ssh
+#    - role: ssh
+    - role: k8s-common
+    - role: master
 
 #- hosts: nodes
 #  become: yes

@@ -1,0 +1,47 @@
+---
+- name: Add the gpg key for Kubernetes apt repository
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: Add the Kubernetes apt repository to the local repository locations
+  copy:
+    dest:  /etc/apt/sources.list.d/kubernetes.list
+    content: 'deb https://apt.kubernetes.io/ kubernetes-xenial main'
+    force: no
+    group: root
+    owner: root
+    mode: 0644
+
+- name: Update the packages list
+  apt:
+    update-cache: yes
+  changed_when: 0
+
+- name: Install docker and kubelet packages
+  apt: name={{item}} state=present
+  with_items:
+    - docker.io
+    - kubelet
+
+- name: Check on-hold packages
+  command: apt-mark showhold
+  register: held_packages
+  changed_when: false
+
+- name: Put packages into on-hold state
+  command: apt-mark hold {{ item }}
+  with_items:
+    - docker.io
+    - kubelet
+  when: '"{{ item }}" not in held_packages.stdout'
+
+
+
+
+
+
+
+
+
+
