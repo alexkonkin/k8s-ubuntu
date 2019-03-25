@@ -1,0 +1,13 @@
+---
+- hosts: masters
+  become: yes
+  connection: local
+  roles:
+    - role: ssh
+
+#- hosts: nodes
+#  become: yes
+#  roles:
+#    - role: node
+
+
