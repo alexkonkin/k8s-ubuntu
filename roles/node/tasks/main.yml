@@ -1,7 +1,30 @@
 ---
+- name: Get Kubernetes token
+  become_user: root
+  become_method: sudo
+  become: true
+  local_action: shell kubeadm token list | tail -n 1 | awk '{print $1}'
+  register: k8s_token
+
+- name: Get Kubernetes hash
+  become_user: root
+  become_method: sudo
+  become: true
+  local_action: shell openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
+  register: k8s_hash
+
+- name: Kubernetes token and hash
+  vars:
+    msg: |
+        {{ k8s_token.stdout }}
+        {{ k8s_hash.stdout }}
+  debug: 
+    msg: "{{ msg.split('\n') }}"
+
+
 - name: Join Kubernetes cluster
   become_user: root
   become: true
   become_method: sudo
-  shell: kubeadm join c1-master1:6443 –token {{ hostvars['localhost']['k8s_token']['stdout'] }}  –discovery-token-ca-cert-hash sha256:{{ hostvars['localhost']['k8s_hash']['stdout'] }}
+  shell: kubeadm join c1-master1:6443 –token {{ k8s_token.stdout }}  –discovery-token-ca-cert-hash sha256:{{ k8s_hash.stdout }}
 

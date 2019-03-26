@@ -1,10 +1,4 @@
 ---
-- name: Install Kubernetes management packages
-  apt: name={{item}} state=present
-  with_items:
-    - kubeadm
-    - kubectl
-
 - name: Download yml files for Kubernetes
   get_url: url={{ item }} dest=/tmp/
   with_items:

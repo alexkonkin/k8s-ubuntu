@@ -23,6 +23,8 @@
   with_items:
     - docker.io
     - kubelet
+    - kubeadm
+    - kubectl
 
 - name: Check on-hold packages
   command: apt-mark showhold
