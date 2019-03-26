@@ -1,4 +1,13 @@
 ---
+- hosts: masters
+  become: yes
+  connection: local
+  roles:
+    - role: misc
+    - role: ssh
+    - role: k8s-common
+    - role: master
+
 - hosts: nodes
   become: yes
   roles:

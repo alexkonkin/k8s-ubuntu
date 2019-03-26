@@ -26,5 +26,5 @@
   become_user: root
   become: true
   become_method: sudo
-  shell: kubeadm join c1-master1:6443 –token {{ k8s_token.stdout }}  –discovery-token-ca-cert-hash sha256:{{ k8s_hash.stdout }}
+  shell: kubeadm join c1-master1:6443 --token {{ k8s_token.stdout }} --discovery-token-ca-cert-hash sha256:{{ k8s_hash.stdout }}
 
