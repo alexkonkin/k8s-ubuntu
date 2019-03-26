@@ -10,13 +10,15 @@
   register: ssh_key
 
 - name: Generate sshkey for vagrant user
+  become_user: vagrant
+  become: true
   command: bash -c "ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -P ''"
   when: ssh_key.stat.exists == False
 
 - name: Register sshkey
   become_user: vagrant
   become: true
-  local_action: shell sshpass -p 'vagrant' ssh-copy-id vagrant@{{ item }}
+  local_action: shell sshpass -p 'vagrant' ssh-copy-id -o stricthostkeychecking=no -i /home/vagrant/.ssh/id_rsa.pub vagrant@{{ item }}
   with_items: "{{ groups['all_hosts'] }}"
 
 
