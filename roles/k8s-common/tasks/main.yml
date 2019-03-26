@@ -36,12 +36,19 @@
     - kubelet
   when: '"{{ item }}" not in held_packages.stdout'
 
+- name: Disable swap (if configured).
+  become_user: root
+  become_method: sudo
+  become: true
+  command: swapoff -a
 
-
-
-
-
-
-
-
+- name: Disable swapoff permanently
+  become_user: root
+  become_method: sudo
+  become: true
+  replace:
+    dest: /etc/fstab
+    regexp: '^(\s*)([^#\n]+\s+)(\w+\s+)swap(\s+.*)$'
+    replace: '#\1\2\3swap\4'
+    backup: yes
 

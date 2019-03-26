@@ -5,6 +5,53 @@
     - kubeadm
     - kubectl
 
+- name: Download yml files for Kubernetes
+  get_url: url={{ item }} dest=/tmp/
+  with_items:
+    - https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/rbac-kdd.yaml
+    - https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/kubernetes-datastore/calico-networking/1.7/calico.yaml
+
+- name: Check if Kubernetes cluster is present and works
+  shell: netstat -tunlp | grep ":6443" | awk '{print $6}'
+  register: port_is_occupied
+
+- name: Initialize Kubernetes cluster
+  become_user: root
+  become_method: sudo
+  become: true
+  command: kubeadm init --apiserver-advertise-address=172.16.94.10 --pod-network-cidr=192.168.0.0/16  
+  register: k8s_init
+  when: port_is_occupied.stdout != 'LISTEN'
+
+- name: Kubernetes master node registration result
+  debug: 
+    var: k8s_init
+
+- name: Get Kubernetes token
+  become_user: root
+  become_method: sudo
+  become: true
+  shell: kubeadm token list | tail -n 1 | awk '{print $1}'
+  register: k8s_token
+
+#- name: Kubernetes token and hash
+#  debug: 
+#    var: k8s_token.stdout
+
+- name: Get Kubernetes hash
+  become_user: root
+  become_method: sudo
+  become: true
+  shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
+  register: k8s_hash
+
+- name: Kubernetes token and hash
+  vars:
+    msg: |
+        {{ k8s_token.stdout }}
+        {{ k8s_hash.stdout }}
+  debug: 
+    msg: "{{ msg.split('\n') }}"
 
 
 
