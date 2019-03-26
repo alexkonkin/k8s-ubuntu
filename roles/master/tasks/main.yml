@@ -15,6 +15,12 @@
   shell: netstat -tunlp | grep ":6443" | awk '{print $6}'
   register: port_is_occupied
 
+- name: Pull images for Kubernetes cluster
+  become_user: root
+  become_method: sudo
+  become: true
+  command: kubeadm config images pull
+
 - name: Initialize Kubernetes cluster
   become_user: root
   become_method: sudo
@@ -52,6 +58,19 @@
         {{ k8s_hash.stdout }}
   debug: 
     msg: "{{ msg.split('\n') }}"
+
+- name: Initialize RBAC
+  become_user: root
+  become_method: sudo
+  become: true
+  shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl apply -f /tmp/rbac-kdd.yaml
+
+- name: Initialize Calico
+  become_user: root
+  become_method: sudo
+  become: true
+  shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl apply -f /tmp/calico.yaml
+
 
 
 
