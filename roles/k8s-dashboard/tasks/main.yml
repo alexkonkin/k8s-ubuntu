@@ -19,7 +19,7 @@
   become_user: root
   become_method: sudo
   become: true
-  shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl apply -f k8s-admin-dashboard-user.yaml
+  shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl apply -f {{ role_path }}/files/k8s-admin-dashboard-user.yaml
   when: port_is_occupied.stdout == 'LISTEN'
 
 - name: Get token and print it to stdout
@@ -33,10 +33,13 @@
 - name: Kubernetes dashboard token
   vars:
     msg: |
-         "Kubernetes dashboard token is:"
+        Kubernetes dashboard token is:
+        ------------------------------    
         {{ k8s_dashboard_token.stdout }}
+        ------------------------------ 
          you can also get this token by executing the command
-        "kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')"
+
+         export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')
   debug: 
     msg: "{{ msg.split('\n') }}"
 
