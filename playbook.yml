@@ -7,6 +7,7 @@
     - role: ssh
     - role: k8s-common
     - role: master
+    - role: k8s-dashboard
 
 - hosts: nodes
   become: yes

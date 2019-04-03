@@ -1,0 +1,50 @@
+---
+- name: Download yml files for Kubernetes
+  get_url: url={{ item }} dest=/tmp/
+  with_items:
+    - https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/recommended/kubernetes-dashboard.yaml
+
+- name: Check if Kubernetes cluster is present and works
+  shell: netstat -tunlp | grep ":6443" | awk '{print $6}'
+  register: port_is_occupied
+
+- name: Create Kubernetes-Dashboard Pod
+  become_user: root
+  become_method: sudo
+  become: true
+  shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl apply -f /tmp/kubernetes-dashboard.yaml
+  when: port_is_occupied.stdout == 'LISTEN'
+
+- name: Create service account and cluster role binding
+  become_user: root
+  become_method: sudo
+  become: true
+  shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl apply -f k8s-admin-dashboard-user.yaml
+  when: port_is_occupied.stdout == 'LISTEN'
+
+- name: Get token and print it to stdout
+  become_user: root
+  become_method: sudo
+  become: true
+  shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')
+  register: k8s_dashboard_token
+  when: port_is_occupied.stdout == 'LISTEN'
+
+- name: Kubernetes dashboard token
+  vars:
+    msg: |
+         "Kubernetes dashboard token is:"
+        {{ k8s_dashboard_token.stdout }}
+         you can also get this token by executing the command
+        "kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')"
+  debug: 
+    msg: "{{ msg.split('\n') }}"
+
+
+
+
+
+
+
+
+
