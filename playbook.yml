@@ -4,7 +4,7 @@
   connection: local
   roles:
     - role: misc
-    - role: ssh
+#    - role: ssh
     - role: k8s-common
     - role: master
     - role: k8s-dashboard
