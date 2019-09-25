@@ -2,7 +2,7 @@
 - name: Download yml files for Kubernetes
   get_url: url={{ item }} dest=/tmp/
   with_items:
-    - https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/recommended/kubernetes-dashboard.yaml
+    - https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta4/aio/deploy/recommended.yaml
 
 - name: Check if Kubernetes cluster is present and works
   shell: netstat -tunlp | grep ":6443" | awk '{print $6}'
@@ -12,7 +12,7 @@
   become_user: root
   become_method: sudo
   become: true
-  shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl apply -f /tmp/kubernetes-dashboard.yaml
+  shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl apply -f /tmp/recommended.yaml
   when: port_is_occupied.stdout == 'LISTEN'
 
 - name: Create service account and cluster role binding

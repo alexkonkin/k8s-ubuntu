@@ -6,6 +6,7 @@
     - role: misc
     - role: ssh
     - role: k8s-common
+    - role: vagrant
     - role: master
     - role: k8s-dashboard
 
@@ -14,6 +15,7 @@
   roles:
     - role: misc
     - role: k8s-common
+    - role: vagrant
     - role: node
 
 

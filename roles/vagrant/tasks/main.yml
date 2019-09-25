@@ -1,0 +1,10 @@
+---
+- set_fact: ipv4_external_ip="{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}"
+
+- name: Add line to 10-kubeadn.conf to avoid binding to 10.0.2.15 IP
+  lineinfile:
+    dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+    regexp: '^Environment="KUBELET_EXTRA_ARGS=--node-ip='
+    insertafter: '^EnvironmentFile=-/etc/default/kubelet$'
+    line: 'Environment="KUBELET_EXTRA_ARGS=--node-ip={{ ipv4_external_ip }}"'
+

@@ -2,8 +2,7 @@
 - name: Download yml files for Kubernetes
   get_url: url={{ item }} dest=/tmp/
   with_items:
-    - https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/rbac-kdd.yaml
-    - https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/kubernetes-datastore/calico-networking/1.7/calico.yaml
+    - https://docs.projectcalico.org/v3.8/manifests/calico.yaml
 
 - name: Check if Kubernetes cluster is present and works
   shell: netstat -tunlp | grep ":6443" | awk '{print $6}'
@@ -24,7 +23,7 @@
   when: port_is_occupied.stdout != 'LISTEN'
 
 - name: Kubernetes master node registration result
-  debug: 
+  debug:
     var: k8s_init
 
 - name: Get Kubernetes token
@@ -52,12 +51,6 @@
         {{ k8s_hash.stdout }}
   debug: 
     msg: "{{ msg.split('\n') }}"
-
-- name: Initialize RBAC
-  become_user: root
-  become_method: sudo
-  become: true
-  shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl apply -f /tmp/rbac-kdd.yaml
 
 - name: Initialize Calico
   become_user: root
