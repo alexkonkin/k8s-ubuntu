@@ -1,0 +1,25 @@
+export KUBECONFIG=/etc/kubernetes/admin.conf
+
+ansible-playbook -i hosts --limit c1-master1,c1-node1  playbook.yml
+
+ansible -c ssh -i hosts -m ping c1-master1 -vvv
+
+
+kubectl get nodes worker1 -o json | jq .status.addresses
+less /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+Environment="KUBELET_EXTRA_ARGS=--node-ip=<worker IP address>"
+ExecStart=
+
+#mapping in virtualbox don't use the same port for the host ip (8888 host 8001 guest)
+#to expose Dashobard use the command
+kubectl proxy --address='0.0.0.0' --disable-filter=true
+
+#deploy simple pod
+kubectl apply -f https://k8s.io/examples/application/shell-demo.yaml
+
+kubectl get pod shell-demo
+#get console in the shell-demo pod
+kubectl exec -it shell-demo -- /bin/bash
+#get lot output for pod
+kubectl -v=9 exec -it busybox-7c9687585b-297lt -- /bin/sh
+kubectl -v=9 logs busybox-7c9687585b-297lt
