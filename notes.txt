@@ -14,6 +14,16 @@ ExecStart=
 #to expose Dashobard use the command
 kubectl proxy --address='0.0.0.0' --disable-filter=true
 
+#get a name of kubernetes dashboard
+kubectl get pods --all-namespaces
+
+#check that kubernetes dashboard pod works as expected, you should not see any errors
+kubectl -v=9 logs kubernetes-dashboard-7b5bf5d559-h59jg --namespace kubernetes-dashboard
+
+#map km1 ip in virtualbox as host:localhost:8888 to guest:172.16.94.10:8001
+http://localhost:8888/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login
+
+
 #deploy simple pod
 kubectl apply -f https://k8s.io/examples/application/shell-demo.yaml
 
