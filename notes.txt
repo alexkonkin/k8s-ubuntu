@@ -1,6 +1,3 @@
-#track dashboard releases and their compatibility with k8s
-https://github.com/kubernetes/dashboard/releases
-
 export KUBECONFIG=/etc/kubernetes/admin.conf
 
 ansible-playbook -i hosts --limit c1-master1,c1-node1  playbook.yml
@@ -39,3 +36,12 @@ kubectl exec -it shell-demo -- /bin/bash
 #get lot output for pod
 kubectl -v=9 exec -it busybox-7c9687585b-297lt -- /bin/sh
 kubectl -v=9 logs busybox-7c9687585b-297lt
+
+#OTHER NOTES
+#track dashboard releases and their compatibility with k8s
+https://github.com/kubernetes/dashboard/releases
+
+#k8s v.20/21 fix if api and scheduler are inoperable (23.04.21)
+https://stackoverflow.com/questions/54608441/kubectl-connectivity-issue
+
+
