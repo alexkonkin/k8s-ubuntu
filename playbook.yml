@@ -3,6 +3,7 @@
   become: yes
   connection: local
   roles:
+    - role: inst-ansible
     - role: misc
     - role: ssh
     - role: k8s-common
