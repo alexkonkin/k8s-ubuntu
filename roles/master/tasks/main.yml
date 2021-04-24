@@ -1,8 +1,9 @@
 ---
-- name: Download yml files for Kubernetes
+- name: Download Calico network setup file for the v.{{ k8s_version }}
   get_url: url={{ item }} dest=/tmp/
   with_items:
     - https://docs.projectcalico.org/v3.8/manifests/calico.yaml
+  when: k8s_version == "1.19.0-00"
 
 - name: Check if Kubernetes cluster is present and works
   shell: netstat -tunlp | grep ":6443" | awk '{print $6}'
@@ -18,7 +19,7 @@
   become_user: root
   become_method: sudo
   become: true
-  command: kubeadm init --apiserver-advertise-address=172.16.94.10 --pod-network-cidr=192.168.0.0/16  
+  command: kubeadm init --apiserver-advertise-address=172.16.94.10 --pod-network-cidr=192.168.0.0/16
   register: k8s_init
   when: port_is_occupied.stdout != 'LISTEN'
 
@@ -32,10 +33,6 @@
   become: true
   shell: kubeadm token list | tail -n 1 | awk '{print $1}'
   register: k8s_token
-
-#- name: Kubernetes token and hash
-#  debug: 
-#    var: k8s_token.stdout
 
 - name: Get Kubernetes hash
   become_user: root
@@ -58,6 +55,48 @@
   become: true
   shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl apply -f /tmp/calico.yaml
 
+- name: Prepare directory for root kubernetes config
+  become_user: root
+  become_method: sudo
+  become: true
+  file:
+    path: /root/.kube/
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
 
+- name: Prepare directory for vagrant kubernetes config
+  become_user: root
+  become_method: sudo
+  become: true
+  file:
+    dest: /home/vagrant/.kube/
+    state: directory
+    owner: vagrant
+    group: vagrant
+    mode: '0700'
 
+- name: Create kubernetes config for root user
+  become_user: root
+  become_method: sudo
+  become: true
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: /root/.kube/config
+    remote_src: yes
+    owner: root
+    group: root
+    mode: '0644'
 
+- name: Create kubernetes config for vagrant user
+  become_user: root
+  become_method: sudo
+  become: true
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: /home/vagrant/.kube/config
+    remote_src: yes
+    owner: vagrant
+    group: vagrant
+    mode: '0644'

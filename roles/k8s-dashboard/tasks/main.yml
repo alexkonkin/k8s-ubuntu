@@ -1,19 +1,21 @@
 ---
-- name: Download yml files for Kubernetes
+- name: Download Kubernetes Dashboard v.{{ k8s_version }} setup file
   get_url: url={{ item }} dest=/tmp/
   with_items:
-    - https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta4/aio/deploy/recommended.yaml
+    - https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.5/aio/deploy/recommended.yaml
+  when: k8s_version == "1.19.0-00"
 
-- name: Check if Kubernetes cluster is present and works
+- name: Check if Kubernetes cluster is up and running
   shell: netstat -tunlp | grep ":6443" | awk '{print $6}'
   register: port_is_occupied
 
-- name: Create Kubernetes-Dashboard Pod
+- name: Create Kubernetes-Dashboard {{ k8s_version }}
   become_user: root
   become_method: sudo
   become: true
   shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl apply -f /tmp/recommended.yaml
   when: port_is_occupied.stdout == 'LISTEN'
+
 
 - name: Create service account and cluster role binding
   become_user: root

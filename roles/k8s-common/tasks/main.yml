@@ -22,9 +22,9 @@
   apt: name={{item}} state=present
   with_items:
     - docker.io
-    - kubelet
-    - kubeadm
-    - kubectl
+    - kubelet={{ k8s_version }}
+    - kubeadm={{ k8s_version }}
+    - kubectl={{ k8s_version }}
 
 - name: Check on-hold packages
   command: apt-mark showhold
