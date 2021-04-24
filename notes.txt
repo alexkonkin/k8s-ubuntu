@@ -1,3 +1,6 @@
+#track dashboard releases and their compatibility with k8s
+https://github.com/kubernetes/dashboard/releases
+
 export KUBECONFIG=/etc/kubernetes/admin.conf
 
 ansible-playbook -i hosts --limit c1-master1,c1-node1  playbook.yml
