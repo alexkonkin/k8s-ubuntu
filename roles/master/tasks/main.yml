@@ -1,10 +1,4 @@
 ---
-#- name: Download Calico network setup file for the v.{{ k8s_version }}
-#  get_url: url={{ item }} dest=/tmp/
-#  with_items:
-#    - https://docs.projectcalico.org/v3.8/manifests/calico.yaml
-#  when: k8s_version == "1.19.0-00"
-
 - name: Check if Kubernetes cluster is present and works
   shell: netstat -tunlp | grep ":6443" | awk '{print $6}'
   register: port_is_occupied
@@ -48,12 +42,6 @@
         {{ k8s_hash.stdout }}
   debug: 
     msg: "{{ msg.split('\n') }}"
-
-#- name: Initialize Calico
-#  become_user: root
-#  become_method: sudo
-#  become: true
-#  shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl apply -f /tmp/calico.yaml
 
 - name: Initialize Weave network plugin
   become_user: root
