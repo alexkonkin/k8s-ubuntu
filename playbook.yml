@@ -9,6 +9,7 @@
     - role: vagrant
     - role: master
     - role: k8s-dashboard
+    - role: k8s-postinst
 
 - hosts: nodes
   become: yes

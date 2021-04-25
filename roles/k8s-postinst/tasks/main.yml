@@ -1,0 +1,12 @@
+---
+- name: "fix port adjustment in scheduler, kube-controller"
+  become_user: root
+  become_method: sudo
+  become: true
+  replace:
+    dest: "{{ item }}"
+    regexp: '^(\s*)- --port=0$'
+    replace: '#   - --port=0'
+  with_items:
+  - /etc/kubernetes/manifests/kube-scheduler.yaml
+  - /etc/kubernetes/manifests/kube-controller-manager.yaml
