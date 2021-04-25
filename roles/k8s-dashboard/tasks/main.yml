@@ -13,7 +13,9 @@
   become_user: root
   become_method: sudo
   become: true
-  shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl apply -f /tmp/recommended.yaml
+  shell: |
+    export KUBECONFIG=/etc/kubernetes/admin.conf &&\
+    kubectl apply -f /tmp/recommended.yaml
   when: port_is_occupied.stdout == 'LISTEN'
 
 
@@ -21,14 +23,18 @@
   become_user: root
   become_method: sudo
   become: true
-  shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl apply -f {{ role_path }}/files/k8s-admin-dashboard-user.yaml
+  shell: |
+    export KUBECONFIG=/etc/kubernetes/admin.conf &&\
+    kubectl apply -f {{ role_path }}/files/k8s-admin-dashboard-user.yaml
   when: port_is_occupied.stdout == 'LISTEN'
 
 - name: Get token and print it to stdout
   become_user: root
   become_method: sudo
   become: true
-  shell: export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')
+  shell: |
+    export KUBECONFIG=/etc/kubernetes/admin.conf &&\
+    kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}"
   register: k8s_dashboard_token
   when: port_is_occupied.stdout == 'LISTEN'
 
@@ -36,20 +42,11 @@
   vars:
     msg: |
         Kubernetes dashboard token is:
-        ------------------------------    
+        ------------------------------
         {{ k8s_dashboard_token.stdout }}
-        ------------------------------ 
+        ------------------------------
          you can also get this token by executing the command
 
-         export KUBECONFIG=/etc/kubernetes/admin.conf && kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')
-  debug: 
+         kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}"
+  debug:
     msg: "{{ msg.split('\n') }}"
-
-
-
-
-
-
-
-
-
