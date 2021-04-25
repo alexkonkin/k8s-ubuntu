@@ -34,7 +34,7 @@
   become: true
   shell: |
     export KUBECONFIG=/etc/kubernetes/admin.conf &&\
-    kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}"
+    kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
   register: k8s_dashboard_token
   when: port_is_occupied.stdout == 'LISTEN'
 
@@ -47,6 +47,6 @@
         ------------------------------
          you can also get this token by executing the command
 
-         kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}"
+         kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
   debug:
     msg: "{{ msg.split('\n') }}"
